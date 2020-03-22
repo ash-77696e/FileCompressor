@@ -30,7 +30,8 @@ void printAllFiles(char* basePath)
         strcat(path, "/");
         strcat(path, entry->d_name);
 
-        if(isDirectory(path))
+        if(!strcmp(".git", entry->d_name)) { } //.git is there cuz of github
+        else if(isDirectory(path))
             printAllFiles(path);
         else
         {

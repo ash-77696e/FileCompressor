@@ -24,7 +24,7 @@ void printAllFiles(char* basePath)
 
     struct dirent* entry;
 
-    while((entry = readdir(dir)) != NULL)
+    while( (entry = readdir(dir)) != NULL)
     {
         strcpy(path, basePath);
         strcat(path, "/");

@@ -3,19 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
-#include <sys/stat.h>
 #include <string.h>
+#include <errno.h>
 
 int isDirectory(const char* path)
 {
-    struct stat statbuf;
-    if(stat(path, &statbuf) != 0)
-        return 0;
-    
-    return S_ISDIR(statbuf.st_mode);
+    return (open(path, O_RDWR) == -1 && errno == EISDIR);
 }
 
-void printAllFiles(char* basePath)
+void printAllFiles(char* basePath, int fd)
 {
     DIR* dir = opendir(basePath);
     readdir(dir);
@@ -24,18 +20,20 @@ void printAllFiles(char* basePath)
 
     struct dirent* entry;
 
-    while( (entry = readdir(dir)) != NULL)
+    while((entry = readdir(dir)) != NULL)
     {
         strcpy(path, basePath);
         strcat(path, "/");
         strcat(path, entry->d_name);
 
-        if(!strcmp(".git", entry->d_name)) { } //.git is there cuz of github
-        else if(isDirectory(path))
-            printAllFiles(path);
+        if(isDirectory(path))
+            printAllFiles(path, fd);
         else
         {
-            printf("%s\n", entry->d_name);
+            char buffer[1000];
+            strcpy(buffer, entry->d_name);
+            strcat(buffer, "\n");
+            write(fd, buffer, strlen(buffer));        
         }
     }
     
@@ -44,6 +42,11 @@ void printAllFiles(char* basePath)
 
 int main(int argc, char* argv[])
 {
-    printAllFiles("./");
+    if(access("./fileCompressor.test", F_OK) != -1)
+        remove("./fileCompressor.test");
+    
+    int fd = open("./fileCompressor.test", O_RDWR | O_CREAT, 00600);
+    printAllFiles("./test", fd);
+
     return 0;
 }

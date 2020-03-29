@@ -5,6 +5,8 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
+#include "structs.h"
+#include "AVL.h"
 
 int isDirectory(const char* path)
 {

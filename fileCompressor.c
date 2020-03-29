@@ -8,10 +8,19 @@
 
 int isDirectory(const char* path)
 {
-    return (open(path, O_RDWR) == -1 && errno == EISDIR);
+    int fd = open(path, O_RDWR);
+
+    if(fd == -1 && errno == EISDIR)
+    {
+        close(fd);
+        return 1;
+    }
+
+    close(fd);
+    return 0;
 }
 
-void printAllFiles(char* basePath, int fd)
+void printAllFiles(char* basePath)
 {
     DIR* dir = opendir(basePath);
     readdir(dir);
@@ -27,26 +36,72 @@ void printAllFiles(char* basePath, int fd)
         strcat(path, entry->d_name);
 
         if(isDirectory(path))
-            printAllFiles(path, fd);
+            printAllFiles(path);
         else
-        {
-            char buffer[1000];
-            strcpy(buffer, entry->d_name);
-            strcat(buffer, "\n");
-            write(fd, buffer, strlen(buffer));        
-        }
+            readFile(path);
     }
     
     closedir(dir);
 }
 
+int readFile(const char* path)
+{
+    int fd = open(path, O_RDONLY);
+    int status;
+
+    char buffer = '.';
+    char* str = (char*) malloc(sizeof(char));
+    
+    int index = 0;
+    str[0] = '\0';
+
+    while((status = read(fd, &buffer, 1)) > 0)
+    {
+        if(buffer == '\n' || buffer == '\t' || buffer == ' ')
+        {
+            
+            if(strlen(str) > 0)
+            {
+                if(str[0] == '/')
+                printf("/");
+                printf("%s", str);
+            }
+
+            if(buffer == '\n')
+                printf("/n");
+            else if(buffer == '\t')
+                printf("/t");
+            else if(buffer == ' ')
+                printf("/s");
+            
+            free(str);
+            str = (char*) malloc(sizeof(char));
+            index = 0;
+            continue;
+        }
+
+        str[index++] = buffer;
+        char* tmp = (char*) realloc(str, sizeof(char)*(index+1));
+        str = tmp;
+        str[index] = '\0';
+    }
+
+    if(strlen(str) > 0)
+    {
+        if(str[0] == '/')
+            printf("/");
+        printf("%s", str);
+    }
+
+    printf("\n");
+
+    free(str);
+
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
-    if(access("./fileCompressor.test", F_OK) != -1)
-        remove("./fileCompressor.test");
-    
-    int fd = open("./fileCompressor.test", O_RDWR | O_CREAT, 00600);
-    printAllFiles("./test", fd);
-
+    printAllFiles("./test");
     return 0;
 }

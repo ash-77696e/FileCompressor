@@ -39,14 +39,14 @@ void printAllFiles(char* basePath)
 
         if(isDirectory(path))
             printAllFiles(path);
-        else
-            readFile(path);
+        //else
+            //buildReadFile(path);
     }
     
     closedir(dir);
 }
 
-int readFile(const char* path)
+node* buildReadFile(const char* path, node* root)
 {
     int fd = open(path, O_RDONLY);
     int status;
@@ -64,17 +64,38 @@ int readFile(const char* path)
             
             if(strlen(str) > 0)
             {
+                node* insert = (node*) malloc(sizeof(node));
+                char* nodeStr;
                 if(str[0] == '/')
-                printf("/");
-                printf("%s", str);
+                {
+                    nodeStr = (char*) malloc(sizeof(char) * strlen(str) + 2);
+                    nodeStr[0] = '/';
+                    strcpy(&nodeStr[1], str);
+                }
+                else
+                {
+                    nodeStr = (char*) malloc(sizeof(char) * strlen(str) + 1);
+                    strcpy(nodeStr, str);
+                }
+
+                insert->token = nodeStr;
+                root = add(root, insert); 
             }
 
-            if(buffer == '\n')
-                printf("/n");
-            else if(buffer == '\t')
-                printf("/t");
-            else if(buffer == ' ')
-                printf("/s");
+            node* insert = (node*) malloc(sizeof(node));
+            char* nodeStr = (char*) (malloc(sizeof(char) * 3));
+            nodeStr[0] = '/';
+            nodeStr[2] = '\0';
+
+            if(buffer == ' ')
+                nodeStr[1] = 's';
+            else if(buffer == '\n')
+                nodeStr[1] = 'n';
+            else
+                nodeStr[1] = 't';
+            
+            insert->token = nodeStr;
+            root = add(root, insert);
             
             free(str);
             str = (char*) malloc(sizeof(char));
@@ -90,20 +111,34 @@ int readFile(const char* path)
 
     if(strlen(str) > 0)
     {
+        node* insert = (node*) malloc(sizeof(node));
+        char* nodeStr;
         if(str[0] == '/')
-            printf("/");
-        printf("%s", str);
-    }
+        {
+            nodeStr = (char*) malloc(sizeof(char) * strlen(str) + 2);
+            nodeStr[0] = '/';
+            strcpy(&nodeStr[1], str);
+        }
+        else
+        {
+            nodeStr = (char*) malloc(sizeof(char) * strlen(str) + 1);
+            strcpy(nodeStr, str);
+        }
 
-    printf("\n");
+        insert->token = nodeStr;
+        root = add(root, insert); 
+    }
 
     free(str);
 
-    return 0;
+    return root;
 }
 
 int main(int argc, char* argv[])
 {
-    printAllFiles("./test");
+    node* root = NULL;
+    root = buildReadFile("./test/test1/gg", root);
+    printTree(root);
+    freeTree(root);
     return 0;
 }

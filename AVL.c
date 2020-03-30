@@ -12,7 +12,7 @@ node* add(node* root, node* strNode){
     }
 
     if(strcmp(root->token, strNode->token) == 0){ // already exists in the tree so increment frequency
-        free(strNode);
+        //free(strNode);
         root->freq++;
         return root; // to traverse back up the tree recursively to the original root and exit the function
     }

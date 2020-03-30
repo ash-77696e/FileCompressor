@@ -7,6 +7,8 @@
 #include <errno.h>
 #include "structs.h"
 #include "AVL.h"
+#include "heap.h"
+#include "IO.h"
 
 int isDirectory(const char* path)
 {
@@ -46,99 +48,22 @@ void printAllFiles(char* basePath)
     closedir(dir);
 }
 
-node* buildReadFile(const char* path, node* root)
-{
-    int fd = open(path, O_RDONLY);
-    int status;
-
-    char buffer = '.';
-    char* str = (char*) malloc(sizeof(char));
-    
-    int index = 0;
-    str[0] = '\0';
-
-    while((status = read(fd, &buffer, 1)) > 0)
-    {
-        if(buffer == '\n' || buffer == '\t' || buffer == ' ')
-        {
-            
-            if(strlen(str) > 0)
-            {
-                node* insert = (node*) malloc(sizeof(node));
-                char* nodeStr;
-                if(str[0] == '/')
-                {
-                    nodeStr = (char*) malloc(sizeof(char) * strlen(str) + 2);
-                    nodeStr[0] = '/';
-                    strcpy(&nodeStr[1], str);
-                }
-                else
-                {
-                    nodeStr = (char*) malloc(sizeof(char) * strlen(str) + 1);
-                    strcpy(nodeStr, str);
-                }
-
-                insert->token = nodeStr;
-                root = add(root, insert); 
-            }
-
-            node* insert = (node*) malloc(sizeof(node));
-            char* nodeStr = (char*) (malloc(sizeof(char) * 3));
-            nodeStr[0] = '/';
-            nodeStr[2] = '\0';
-
-            if(buffer == ' ')
-                nodeStr[1] = 's';
-            else if(buffer == '\n')
-                nodeStr[1] = 'n';
-            else
-                nodeStr[1] = 't';
-            
-            insert->token = nodeStr;
-            root = add(root, insert);
-            
-            free(str);
-            str = (char*) malloc(sizeof(char));
-            index = 0;
-            continue;
-        }
-
-        str[index++] = buffer;
-        char* tmp = (char*) realloc(str, sizeof(char)*(index+1));
-        str = tmp;
-        str[index] = '\0';
-    }
-
-    if(strlen(str) > 0)
-    {
-        node* insert = (node*) malloc(sizeof(node));
-        char* nodeStr;
-        if(str[0] == '/')
-        {
-            nodeStr = (char*) malloc(sizeof(char) * strlen(str) + 2);
-            nodeStr[0] = '/';
-            strcpy(&nodeStr[1], str);
-        }
-        else
-        {
-            nodeStr = (char*) malloc(sizeof(char) * strlen(str) + 1);
-            strcpy(nodeStr, str);
-        }
-
-        insert->token = nodeStr;
-        root = add(root, insert); 
-    }
-
-    free(str);
-
-    return root;
-}
-
 int main(int argc, char* argv[])
 {
     node* root = NULL;
-    root = buildReadFile("./test/test1/gg", root);
-    printTree(root);
+    root = buildAVLFromFile("./test/test1/gg", root);
+    //printTree(root);
+    int size = getSize(root);
+    node** heap = (node**) malloc(sizeof(node*) * size);
+    createHeap(heap, root, 0);
+    buildHeap(heap, size);
+
+    int i = 0;
+    for(i = 0; i < size; i++)
+        printf("%d\n", heap[i]->freq);
+    
+    free(heap);
     freeTree(root);
+
     return 0;
 }

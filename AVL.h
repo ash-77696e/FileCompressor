@@ -9,4 +9,6 @@ void printTree(node* root);
 
 void freeTree(node* root);
 
+int getSize(node* root);
+
 #endif

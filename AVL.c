@@ -4,15 +4,15 @@
 #include <string.h>
 
 node* add(node* root, node* strNode){
-    if( root == NULL){ // tree is empty
+    if(root == NULL){ // tree is empty
         strNode->freq = 1;
+        strNode->height = -1;
         strNode->left = NULL;
         strNode->right = NULL;
         return strNode;
     }
 
     if(strcmp(root->token, strNode->token) == 0){ // already exists in the tree so increment frequency
-        //free(strNode);
         root->freq++;
         return root; // to traverse back up the tree recursively to the original root and exit the function
     }
@@ -69,4 +69,12 @@ void freeTree(node* root)
     freeTree(root->right);
     free(root->token);
     free(root);
+}
+
+int getSize(node* root)
+{
+    if(root == NULL)
+        return 0;
+    else
+        return (1 + getSize(root->left) + getSize(root->right));
 }

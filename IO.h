@@ -5,4 +5,6 @@
 
 node* buildAVLFromFile(const char* path, node* root);
 
+void writeHuffmanCodebook(int fd, node* root);
+
 #endif

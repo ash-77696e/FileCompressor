@@ -95,3 +95,29 @@ node* buildAVLFromFile(const char* path, node* root)
 
     return root;
 }
+
+void writeHuffman(int fd, node* root)
+{
+    if(root == NULL)
+        return;
+    char* tab = "\t";
+    char* newLine = "\n";
+
+    if(root->encoding != NULL)
+    {
+        write(fd, root->encoding, strlen(root->encoding));
+        write(fd, tab, 1);
+        write(fd, root->token, strlen(root->token));
+        write(fd, newLine, 1);
+    }
+
+    writeHuffman(fd, root->left);
+    writeHuffman(fd, root->right);
+}
+
+void writeHuffmanCodebook(int fd, node* root)
+{
+    char* escape = "/\n\0";
+    write(fd, escape, strlen(escape));
+    writeHuffman(fd, root);
+}

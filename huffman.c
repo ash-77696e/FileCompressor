@@ -62,6 +62,8 @@ void freeHuffman(node* root)
     freeHuffman(root->right);
     if(root->token != NULL)
         free(root->token);
+    if(root->encoding != NULL)
+        free(root->encoding);
     free(root);
 }
 

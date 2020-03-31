@@ -3,7 +3,7 @@
 int main(int argc, char* argv[])
 {
     node* root = NULL;
-    root = buildAVLFromFile("./test/test1/gg", root);
+    root = buildAVLFromFile("./test1.pdf.pdf", root);
     int heapSize = getSize(root);
     node** heap = (node**) malloc(sizeof(node*) * heapSize);
     createHeap(heap, root, 0);
@@ -13,6 +13,9 @@ int main(int argc, char* argv[])
     int* huffmanCodeArr = (int*) malloc(sizeof(int) * huffmanSize);
     int lengthOfEncoding = 0;
     encode(heap[0], huffmanCodeArr, lengthOfEncoding);
+    int codebookFD = open("./HuffmanCodebook", O_RDWR | O_CREAT, 00600);
+    writeHuffmanCodebook(codebookFD, heap[0]);
+    close(codebookFD);
     printHuffman(heap[0]);
     freeHuffman(heap[0]);
     free(heap);

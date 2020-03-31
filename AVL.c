@@ -12,24 +12,48 @@ node* add(node* root, node* strNode){
         return strNode;
     }
 
-    if(strcmp(root->token, strNode->token) == 0){ // already exists in the tree so increment frequency
+    else if(strcmp(root->token, strNode->token) == 0){ // already exists in the tree so increment frequency
         root->freq++;
         return root; // to traverse back up the tree recursively to the original root and exit the function
     }
 
-    if(strcmp(root->token, strNode->token) < 0){ // traverse through right subtree
+    else if(strcmp(root->token, strNode->token) < 0){ // traverse through right subtree
         root->right = add(root->right, strNode);
 
         if(height(root->right) - height(root->left) == 2){ // inserting in right subtree means if the tree is unbalanced it's from the right
-            //rotate
+            if(strcmp(strNode->token, root->right->token) > 0){ // right right case
+                node* p = root;
+                node* c = root->right;
+
+                root = rightright(p, c);
+            }
+            else{ // right left case
+                node* p = root; 
+                node* c = root->right;
+                node* g = root->right->left;
+
+                root = rightleft(p, c, g);
+            }
         }
     }
 
-    if(strcmp(root->token, strNode->token) > 0){ // traverse through left subtree
+    else if(strcmp(root->token, strNode->token) > 0){ // traverse through left subtree
         root->left = add(root->left, strNode);
 
         if(height(root->left) - height(root->right) == 2){ // inserting in left subtree means if the tree is unbalanced it's from the left
-            //rotate
+            if(strcmp(strNode->token, root->left->token) < 0){ // left left case
+                node* p = root;
+                node* c = root->left;
+
+                root = leftleft(p, c);
+            }
+            else{ // left right case
+                node* p = root;
+                node* c = root->left;
+                node* g = root->left->right;
+
+                root = leftright(p, c, g);
+            }
         }
 
     }
@@ -77,4 +101,73 @@ int getSize(node* root)
         return 0;
     else
         return (1 + getSize(root->left) + getSize(root->right));
+}
+
+int maxchild(node* root){
+    int result = -1;
+    if(root->left != NULL){
+        result = root->left->height;
+    }
+    if(root->right != NULL){
+        if(root->right->height > result){
+            result = root->right->height;
+        }
+    }
+    return result;
+}
+
+node* leftleft(node* p, node* c){
+    node* temp = c->right;
+    c->right = p;
+    p->left = temp;
+    p->height = maxchild(p) + 1;
+    c->height = maxchild(c) + 1;
+
+    return c;
+}
+
+node* rightright(node* p, node* c){
+    node* temp = c->left;
+    c->left = p;
+    p->right = temp;
+    p->height = maxchild(p) + 1;
+    c->height = maxchild(c) + 1;
+
+    return c;
+}
+
+node* leftright(node* p, node* c, node* g){
+    // start with right right rotation
+    node* temp = g->left;
+    g->left = c;
+    c->right = temp;
+    c->height = maxchild(c) + 1;
+    g->height = maxchild(g) + 1;
+
+    // do left left rotation 
+    node* temp = g->right;
+    g->right = p;
+    p->left = temp;
+    p->height = maxchild(p) + 1;
+    g->height = maxchild(g) + 1;
+
+    return g;
+}
+
+node* rightleft(node* p, node* c, node* g){
+    //start with left left rotation
+    node* temp = g->right;
+    g->right = c;
+    c->left = temp;
+    c->height = maxchild(c) + 1;
+    g->height = maxchild(g) + 1;
+
+    //do right right rotation
+    node* temp = g->left;
+    g->left = p;
+    p->right = temp;
+    p->height = maxchild(p) + 1;
+    g->height = maxchild(g) + 1;
+
+    return g;
 }

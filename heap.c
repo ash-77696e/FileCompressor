@@ -20,20 +20,19 @@ int createHeap(node** heap, node* root, int i)
 void heapify(node** heap, int size, int parent)
 {
     int smallest = parent;
-    int left = 2*parent + 1;
-    int right = 2*parent + 2;
+    int leftChild = 2*parent + 1;
+    int rightChild = 2*parent + 2;
 
-    if(left < size && heap[left]->freq < heap[smallest]->freq)
-        smallest = left;
-    if(right < size && heap[right]->freq < heap[smallest]->freq)
-        smallest = right;
+    if(leftChild < size && heap[leftChild]->freq < heap[smallest]->freq)
+        smallest = leftChild;
+    if(rightChild < size && heap[rightChild]->freq < heap[smallest]->freq)
+        smallest = rightChild;
     
     if(smallest != parent)
     {
         node* temp = heap[parent];
         heap[parent] = heap[smallest];
         heap[smallest] = temp;
-
         heapify(heap, size, smallest);
     }
 }
@@ -45,4 +44,34 @@ void buildHeap(node** heap, int size)
     {
         heapify(heap, size, i);
     }
+
+    for(i = 0; i < size; i++)
+    {
+        heap[i]->left = NULL;
+        heap[i]->right = NULL;
+    }
+}
+
+node* extractMin(node** heap, int* size)
+{
+    node* temp = heap[0];
+    heap[0] = heap[(*size)-1];
+    (*size)--;
+    heapify(heap, *size, 0);
+
+    return temp;
+}
+
+void insertIntoHeap(node** heap, node* newNode, int* size)
+{
+    *size = (*size)+1;
+    int i = (*size)-1;
+    
+    while(i != 0 && (newNode->freq < heap[(i-1)/2]->freq))
+    {
+        heap[i] = heap[(i-1)/2];
+        i = (i-1)/2;
+    }
+
+    heap[i] = newNode;
 }

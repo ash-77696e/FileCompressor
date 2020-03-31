@@ -1,14 +1,25 @@
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <dirent.h>
-#include <string.h>
-#include <errno.h>
-#include "structs.h"
-#include "AVL.h"
-#include "heap.h"
-#include "IO.h"
+#include "fileCompressor.h"
+
+int main(int argc, char* argv[])
+{
+    node* root = NULL;
+    root = buildAVLFromFile("./test/test1/gg", root);
+    int heapSize = getSize(root);
+    node** heap = (node**) malloc(sizeof(node*) * heapSize);
+    createHeap(heap, root, 0);
+    buildHeap(heap, heapSize);
+    buildHuffmanTree(heap, &heapSize);
+    int huffmanSize = getSize(heap[0]);
+    int* huffmanCodeArr = (int*) malloc(sizeof(int) * huffmanSize);
+    int lengthOfEncoding = 0;
+    encode(heap[0], huffmanCodeArr, lengthOfEncoding);
+    printHuffman(heap[0]);
+    freeHuffman(heap[0]);
+    free(heap);
+    free(huffmanCodeArr);
+
+    return 0;
+}
 
 int isDirectory(const char* path)
 {
@@ -46,24 +57,4 @@ void printAllFiles(char* basePath)
     }
     
     closedir(dir);
-}
-
-int main(int argc, char* argv[])
-{
-    node* root = NULL;
-    root = buildAVLFromFile("./test/test1/gg", root);
-    //printTree(root);
-    int size = getSize(root);
-    node** heap = (node**) malloc(sizeof(node*) * size);
-    createHeap(heap, root, 0);
-    buildHeap(heap, size);
-
-    int i = 0;
-    for(i = 0; i < size; i++)
-        printf("%d\n", heap[i]->freq);
-    
-    free(heap);
-    freeTree(root);
-
-    return 0;
 }

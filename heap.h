@@ -9,4 +9,9 @@ void buildHeap(node** heap, int size);
 
 void heapify(node** heap, int size, int parent);
 
+node* extractMin(node** heap, int* size);
+
+void insertIntoHeap(node** heap, node* newNode, int* size);
+
+
 #endif

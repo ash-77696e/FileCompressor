@@ -5,7 +5,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
-#include "heap.h"
+#include "minheap.h"
 #include "structs.h"
 
 void buildHuffmanTree(node** heap, int* size)

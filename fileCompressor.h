@@ -10,7 +10,7 @@
 #include <errno.h>
 #include "structs.h"
 #include "AVL.h"
-#include "heap.h"
+#include "minheap.h"
 #include "IO.h"
 #include "huffman.h"
 

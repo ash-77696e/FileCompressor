@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "AVL.h"
 
 node* add(node* root, node* strNode){
     if(root == NULL){ // tree is empty
@@ -145,7 +146,7 @@ node* leftright(node* p, node* c, node* g){
     g->height = maxchild(g) + 1;
 
     // do left left rotation 
-    node* temp = g->right;
+    temp = g->right;
     g->right = p;
     p->left = temp;
     p->height = maxchild(p) + 1;
@@ -163,7 +164,7 @@ node* rightleft(node* p, node* c, node* g){
     g->height = maxchild(g) + 1;
 
     //do right right rotation
-    node* temp = g->left;
+    temp = g->left;
     g->left = p;
     p->right = temp;
     p->height = maxchild(p) + 1;

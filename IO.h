@@ -9,4 +9,6 @@ void writeHuffmanCodebook(int fd, node* root);
 
 node* buildAVLFromHuffman(int fd, node* root);
 
+void compressFile(int oldFD, int compFD, node* root);
+
 #endif

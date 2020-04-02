@@ -3,7 +3,7 @@
 int main(int argc, char* argv[])
 {
     /*node* root = NULL;
-    root = buildAVLFromFile("./test1.pdf.pdf", root);
+    root = buildAVLFromFile("./ESSENTIALQUESTIONSF18.pdf", root);
     int heapSize = getSize(root);
     node** heap = (node**) malloc(sizeof(node*) * heapSize);
     createHeap(heap, root, 0);
@@ -23,7 +23,9 @@ int main(int argc, char* argv[])
     int codebookFD = open("./HuffmanCodebook", O_RDONLY);
     node* root = NULL;
     root = buildAVLFromHuffman(codebookFD, root);
-    printTree(root);
+    int oldFD = open("./ESSENTIALQUESTIONSF18.pdf", O_RDONLY);
+    int compFD = open("./ESSENTIALQUESTIONS.pdf.hcz", O_RDWR | O_CREAT, 00600);
+    compressFile(oldFD, compFD, root);
     freeTree(root);
     close(codebookFD);
     return 0;

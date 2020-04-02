@@ -2,11 +2,93 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
 #include "structs.h"
 #include "AVL.h"
+
+void compressFile(int oldFD, int compFD, node* root)
+{
+    int status;
+    char buffer = '\0';
+
+    char* str = (char*) malloc(sizeof(char));
+
+    int index = 0;
+    str[0] = '\0';
+
+    while((status = read(oldFD, &buffer, 1)) > 0)
+    {
+        if(iscntrl(buffer) || buffer == ' ')
+        {
+            if(strlen(str) > 0)
+            {
+                char* findStr;
+                if(str[0] == '/')
+                {
+                    findStr = (char*) malloc(sizeof(char) * (strlen(str) + 2));
+                    findStr[0] = '/';
+                    strcpy(&findStr[1], str);
+                }
+                else
+                {
+                    findStr = (char*) malloc(sizeof(char) * (strlen(str) + 1));
+                    strcpy(findStr, str);
+                }
+                
+                node* found = AVLSearch(root, findStr);
+                write(compFD, found->encoding, strlen(found->encoding));
+                free(findStr);
+            }
+
+            char* findStr = (char*) malloc(sizeof(char) * 4);
+            findStr[0] = '/';
+            findStr[3] = '\0';
+            int asciiValue = (int) buffer;
+            findStr[1] = (asciiValue / 10) + '0';
+            findStr[2] = (asciiValue % 10) + '0';
+
+            node* found = AVLSearch(root, findStr);
+            write(compFD, found->encoding, strlen(found->encoding));
+            free(findStr);
+
+            free(str);
+            str = (char*) malloc(sizeof(char));
+            str[0] = '\0';
+            index = 0;
+            continue;
+        }
+
+        str[index++] = buffer;
+        char* tmp = (char*) realloc(str, sizeof(char)*(index+1));
+        str = tmp;
+        str[index] = '\0';
+    }
+
+    if(strlen(str) > 0)
+    {
+        char* findStr;
+        if(str[0] == '/')
+        {
+            findStr = (char*) malloc(sizeof(char) * (strlen(str) + 2));
+            findStr[0] = '/';
+            strcpy(&findStr[1], str);
+        }
+        else
+        {
+            findStr = (char*) malloc(sizeof(char) * (strlen(str) + 1));
+            strcpy(findStr, str);
+        }
+                
+        node* found = AVLSearch(root, findStr);
+        write(compFD, found->encoding, strlen(found->encoding));
+        free(findStr);
+    }
+
+    free(str);
+}
 
 node* buildAVLFromFile(const char* path, node* root)
 {
@@ -21,7 +103,7 @@ node* buildAVLFromFile(const char* path, node* root)
 
     while((status = read(fd, &buffer, 1)) > 0)
     {
-        if(buffer == '\n' || buffer == '\t' || buffer == ' ')
+        if(iscntrl(buffer) || buffer == ' ')
         {
             
             if(strlen(str) > 0)
@@ -45,22 +127,20 @@ node* buildAVLFromFile(const char* path, node* root)
             }
 
             node* insert = (node*) malloc(sizeof(node));
-            char* nodeStr = (char*) (malloc(sizeof(char) * 3));
+            char* nodeStr = (char*) (malloc(sizeof(char) * 4));
             nodeStr[0] = '/';
-            nodeStr[2] = '\0';
-
-            if(buffer == ' ')
-                nodeStr[1] = 's';
-            else if(buffer == '\n')
-                nodeStr[1] = 'n';
-            else
-                nodeStr[1] = 't';
+            nodeStr[3] = '\0';
             
+            int asciiVal = (int) buffer;
+            nodeStr[1] = (asciiVal / 10) + '0';
+            nodeStr[2] = (asciiVal % 10) + '0';
+
             insert->token = nodeStr;
             root = add(root, insert);
 
             free(str);
             str = (char*) malloc(sizeof(char));
+            str[0] = '\0';
             index = 0;
             continue;
         }
@@ -155,7 +235,6 @@ node* buildAVLFromHuffman(int fd, node* root)
             strcpy(nodeStr, str);
             insert->token = nodeStr;
             root = add(root, insert);
-
             free(str);
             str = (char*) malloc(sizeof(char));
             index = 0;
@@ -172,3 +251,4 @@ node* buildAVLFromHuffman(int fd, node* root)
 
     return root;
 }
+

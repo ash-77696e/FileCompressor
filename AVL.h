@@ -21,4 +21,6 @@ node* leftright(node* p, node* c, node* g);
 
 node* rightleft(node* p, node* c, node* g);
 
+node* AVLSearch(node* root, char* str);
+
 #endif

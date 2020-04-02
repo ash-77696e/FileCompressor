@@ -175,3 +175,19 @@ node* rightleft(node* p, node* c, node* g){
 
     return g;
 }
+
+node* AVLSearch(node* root, char* str){ 
+    if(root == NULL || strcmp(root->token, str) == 0){ // either end of tree or match
+        return root;
+    }
+    
+    else if(strcmp(str, root->token) > 0){ // str is on right side of the AVL
+        return AVLSearch(root->right, str);
+    }
+
+    else{
+        return AVLSearch(root->left, str); // str is on left side of the AVL
+    }
+
+
+}

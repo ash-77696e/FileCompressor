@@ -14,6 +14,8 @@ node* add(node* root, node* strNode){
     }
 
     else if(strcmp(root->token, strNode->token) == 0){ // already exists in the tree so increment frequency
+        //free(strNode->token); for some reason, these 2 lines cause a segfault sometimes
+        //free(strNode);
         root->freq++;
         return root; // to traverse back up the tree recursively to the original root and exit the function
     }
@@ -82,7 +84,7 @@ void printTree(node* root)
     if(root == NULL)
         return;
     printTree(root->left);
-    printf("Token: %s, Freq: %d\n", root->token, root->freq);
+    printf("Token: %s, Encoding: %s\n", root->token, root->encoding);
     printTree(root->right);
 }
 
@@ -93,6 +95,7 @@ void freeTree(node* root)
     freeTree(root->left);
     freeTree(root->right);
     free(root->token);
+    free(root->encoding);
     free(root);
 }
 

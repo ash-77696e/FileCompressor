@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-    node* root = NULL;
+    /*node* root = NULL;
     root = buildAVLFromFile("./test1.pdf.pdf", root);
     int heapSize = getSize(root);
     node** heap = (node**) malloc(sizeof(node*) * heapSize);
@@ -16,11 +16,16 @@ int main(int argc, char* argv[])
     int codebookFD = open("./HuffmanCodebook", O_RDWR | O_CREAT, 00600);
     writeHuffmanCodebook(codebookFD, heap[0]);
     close(codebookFD);
-    printHuffman(heap[0]);
     freeHuffman(heap[0]);
     free(heap);
-    free(huffmanCodeArr);
+    free(huffmanCodeArr);*/
 
+    int codebookFD = open("./HuffmanCodebook", O_RDONLY);
+    node* root = NULL;
+    root = buildAVLFromHuffman(codebookFD, root);
+    printTree(root);
+    freeTree(root);
+    close(codebookFD);
     return 0;
 }
 

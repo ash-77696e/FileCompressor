@@ -2,6 +2,7 @@
 
 int main(int argc, char* argv[])
 {
+    //build codebook
     /*node* root = NULL;
     root = buildAVLFromFile("./ESSENTIALQUESTIONSF18.pdf", root);
     int heapSize = getSize(root);
@@ -19,15 +20,19 @@ int main(int argc, char* argv[])
     freeHuffman(heap[0]);
     free(heap);
     free(huffmanCodeArr);*/
-
-    int codebookFD = open("./HuffmanCodebook", O_RDONLY);
+    
+    //compress file
+    /*int codebookFD = open("./HuffmanCodebook", O_RDONLY);
     node* root = NULL;
     root = buildAVLFromHuffman(codebookFD, root);
     int oldFD = open("./ESSENTIALQUESTIONSF18.pdf", O_RDONLY);
     int compFD = open("./ESSENTIALQUESTIONS.pdf.hcz", O_RDWR | O_CREAT, 00600);
     compressFile(oldFD, compFD, root);
     freeTree(root);
-    close(codebookFD);
+    close(codebookFD);*/
+
+    //decompress file
+    
     return 0;
 }
 

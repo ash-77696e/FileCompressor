@@ -18,4 +18,6 @@ int isDirectory(const char* path);
 
 void printAllFiles(char* basePath);
 
+void buildAVLRecursive(char* basePath, node* root);
+
 #endif

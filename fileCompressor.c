@@ -84,3 +84,28 @@ void printAllFiles(char* basePath)
     
     closedir(dir);
 }
+
+void buildAVLRecursive(char* basePath, node* root)
+{
+    DIR* dir = opendir(basePath); 
+    // 2 reads to skip past parent and current directory
+    readdir(dir);
+    readdir(dir);
+
+    char path[10000];
+
+    struct dirent* entry;
+
+    while((entry = readdir(dir)) != NULL)
+    { // still an entry to be read from the directory
+        strcpy(path, basePath);
+        strcat(path, "/");
+        strcat(path, entry->d_name);
+
+        if(isDirectory(path))
+            buildAVLRecursive(path, root);
+        else
+            buildAVLFromFile(path, root);
+        
+    }
+}

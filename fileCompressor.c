@@ -4,7 +4,7 @@ int main(int argc, char* argv[])
 {
     //build codebook
     /*node* root = NULL;
-    root = buildAVLFromFile("./ESSENTIALQUESTIONSF18.pdf", root);
+    root = buildAVLFromFile("./test1.pdf.pdf", root);
     int heapSize = getSize(root);
     node** heap = (node**) malloc(sizeof(node*) * heapSize);
     createHeap(heap, root, 0);
@@ -25,8 +25,8 @@ int main(int argc, char* argv[])
     /*int codebookFD = open("./HuffmanCodebook", O_RDONLY);
     node* root = NULL;
     root = buildAVLFromHuffman(codebookFD, root);
-    int oldFD = open("./ESSENTIALQUESTIONSF18.pdf", O_RDONLY);
-    int compFD = open("./ESSENTIALQUESTIONS.pdf.hcz", O_RDWR | O_CREAT, 00600);
+    int oldFD = open("./test1.pdf.pdf", O_RDONLY);
+    int compFD = open("./test1.pdf.pdf.hcz", O_RDWR | O_CREAT, 00600);
     compressFile(oldFD, compFD, root);
     freeTree(root);
     close(codebookFD);*/
@@ -37,7 +37,12 @@ int main(int argc, char* argv[])
     huffmanTreeRoot->encoding = NULL;
     huffmanTreeRoot->token = NULL;
     huffmanTreeRoot = buildHuffmanFromFile(codebookFD, huffmanTreeRoot);
-    printHuffman(huffmanTreeRoot);
+    //printHuffman(huffmanTreeRoot);
+    int compFD = open("./test1.pdf.pdf.hcz", O_RDONLY);
+    int newFD = open("./test1.txt", O_RDWR | O_CREAT, 00600);
+    decompressFile(compFD, newFD, huffmanTreeRoot);
+
+    freeHuffman(huffmanTreeRoot);
 
     return 0;
 }

@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <ctype.h>
 #include <dirent.h>
 #include <string.h>
@@ -9,6 +10,66 @@
 #include "structs.h"
 #include "huffman.h"
 #include "AVL.h"
+
+void decompressFile(int compFD, int newFD, node* root)
+{
+    char buffer = '\0';
+    int status;
+    bool traversing = false;
+    node* ptr;
+
+    while((status = read(compFD, &buffer, 1)) > 0)
+    {
+        if(!traversing)
+        {
+            traversing = true;
+            ptr = root;
+        }
+
+        int val = (int) (buffer - '0');
+
+        if(traversing)
+        {
+            if(val == 0 && ptr->left != NULL)
+                ptr = ptr->left;
+            if(val == 1 && ptr->right != NULL)
+                ptr = ptr->right;
+            
+            if(ptr->left == NULL && ptr->right == NULL)
+            {
+                if(ptr->token[0] == '/')
+                {
+                    if(ptr->token[1] != '/')
+                    {
+                        char ascii[2];
+                        int asciiVal = 0;
+                        memcpy(ascii, &(ptr->token[1]), 2);
+                        if(ascii[0] == '0')
+                            asciiVal = atoi(&ascii[1]);
+                        else
+                            asciiVal = atoi(ascii);
+
+                        char c = asciiVal;
+                        write(newFD, &c, 1);
+                        traversing = false;
+                    }
+                    else
+                    {
+                        printf("hello");
+                        write(newFD, &(ptr->token[1]), strlen(&(ptr->token[1])));
+                        traversing = false;
+                    }
+                    
+                }
+                else
+                {  
+                    write(newFD, ptr->token, strlen(ptr->token));
+                    traversing = false;
+                }
+            }
+        }
+    }
+}
 
 node* buildHuffmanFromFile(int fd, node* root)
 {

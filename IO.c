@@ -7,7 +7,58 @@
 #include <string.h>
 #include <errno.h>
 #include "structs.h"
+#include "huffman.h"
 #include "AVL.h"
+
+node* buildHuffmanFromFile(int fd, node* root)
+{
+    char buffer = '\0';
+    char* str = (char*) malloc(sizeof(char));
+
+    int index = 0;
+    int status;
+
+    read(fd, &buffer, 1);
+    read(fd, &buffer, 1);
+    node* insert;
+    str[index] = '\0';
+
+    while((status = read(fd, &buffer, 1)) > 0)
+    {
+        if(buffer == '\t')
+        {
+            char* nodeStr = (char*) malloc(sizeof(char) * (strlen(str) + 1));
+            strcpy(nodeStr, str);
+            insert = (node*) malloc(sizeof(node));
+            insert->encoding = nodeStr;
+            free(str);
+            str = (char*) malloc(sizeof(char));
+            index = 0;
+            continue;
+        }
+
+        if(buffer == '\n')
+        {
+            char* nodeStr = (char*) malloc(sizeof(char) * (strlen(str) + 1));
+            strcpy(nodeStr, str);
+            insert->token = nodeStr;
+            root = buildHuffmanFromEncoding(root, insert);
+            free(str);
+            str = (char*) malloc(sizeof(char));
+            index = 0;
+            continue;
+        }
+
+        str[index++] = buffer;
+        char* tmp = (char*) realloc(str, sizeof(char)*(index+1));
+        str = tmp;
+        str[index] = '\0';
+    }
+
+    free(str);
+
+    return root;
+}
 
 void compressFile(int oldFD, int compFD, node* root)
 {

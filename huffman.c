@@ -8,6 +8,48 @@
 #include "minheap.h"
 #include "structs.h"
 
+node* buildHuffmanFromEncoding(node* root, node* strNode)
+{
+    int index = 0;
+    node* ptr = root;
+
+    while(strNode->encoding[index] != '\0')
+    {
+        int val = (int) (strNode->encoding[index] - '0');
+        if(val == 0)
+        {
+            if(ptr->left == NULL)
+            {
+                ptr->left = (node*) malloc(sizeof(node));
+                ptr->left->encoding = NULL;
+                ptr->left->token = NULL;
+            } 
+
+            ptr = ptr->left;
+        }
+
+        if(val == 1)
+        {
+            if(ptr->right == NULL)
+            {
+                ptr->right = (node*) malloc(sizeof(node));
+                ptr->right->encoding = NULL;
+                ptr->right->token = NULL;
+            }
+
+            ptr = ptr->right;
+        }
+
+        index++;
+    }
+
+    ptr->encoding = strNode->encoding;
+    ptr->token = strNode->token;
+    free(strNode);
+
+    return root;
+}
+
 void buildHuffmanTree(node** heap, int* size)
 {
     if(*size == 1)

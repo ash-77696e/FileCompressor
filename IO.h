@@ -11,4 +11,6 @@ node* buildAVLFromHuffman(int fd, node* root);
 
 void compressFile(int oldFD, int compFD, node* root);
 
+node* buildHuffmanFromFile(int fd, node* root);
+
 #endif

@@ -11,4 +11,6 @@ void freeHuffman(node* root);
 
 void encode(node* root, int* huffmanCodeArr, int lengthOfEncoding);
 
+node* buildHuffmanFromEncoding(node* root, node* strNode);
+
 #endif

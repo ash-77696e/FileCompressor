@@ -32,7 +32,13 @@ int main(int argc, char* argv[])
     close(codebookFD);*/
 
     //decompress file
-    
+    int codebookFD = open("./HuffmanCodebook", O_RDONLY);
+    node* huffmanTreeRoot = (node*) malloc(sizeof(node));
+    huffmanTreeRoot->encoding = NULL;
+    huffmanTreeRoot->token = NULL;
+    huffmanTreeRoot = buildHuffmanFromFile(codebookFD, huffmanTreeRoot);
+    printHuffman(huffmanTreeRoot);
+
     return 0;
 }
 

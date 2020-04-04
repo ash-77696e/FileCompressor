@@ -11,10 +11,23 @@
 #include "huffman.h"
 #include "AVL.h"
 
-void decompressFile(int compFD, int newFD, node* root)
+void decompressFile(char* oldPath, char* newPath, node* root)
 {
+    int compFD = open(oldPath, O_RDONLY);
+    if(compFD == -1)
+    {
+        printf("Fatal Error: file %s does not exist\n", oldPath);
+        return;
+    }
+    if(access(newPath, F_OK) != -1)
+    {
+        printf("Warning: File %s already exists, will be deleted and/or replaced\n", newPath);
+        remove(newPath);
+    }
+    int newFD = open(newPath, O_RDWR | O_CREAT, 00600);
     char buffer = '\0';
     int status;
+
     bool traversing = false;
     node* ptr;
 
@@ -55,7 +68,6 @@ void decompressFile(int compFD, int newFD, node* root)
                     }
                     else
                     {
-                        printf("hello");
                         write(newFD, &(ptr->token[1]), strlen(&(ptr->token[1])));
                         traversing = false;
                     }
@@ -69,10 +81,14 @@ void decompressFile(int compFD, int newFD, node* root)
             }
         }
     }
+
+    close(compFD);
 }
 
-node* buildHuffmanFromFile(int fd, node* root)
+node* buildHuffmanFromFile(char* path, node* root)
 {
+    int fd = open(path, O_RDONLY);
+
     char buffer = '\0';
     char* str = (char*) malloc(sizeof(char));
 
@@ -121,10 +137,35 @@ node* buildHuffmanFromFile(int fd, node* root)
     return root;
 }
 
-void compressFile(int oldFD, int compFD, node* root)
+void compressFile(char* oldFilePath, char* newFilePath, node* root)
 {
+    int oldFD = open(oldFilePath, O_RDONLY);
     int status;
     char buffer = '\0';
+
+    if(oldFD == -1)
+    {
+        printf("Fatal Error: %s does not exist\n", oldFilePath);
+        return;
+    }
+
+    if((status = read(oldFD, &buffer, 1)) == 0)
+    {
+        printf("Fatal Error: File: %s is empty, can't be compressed\n", oldFilePath);
+        close(oldFD);
+        return;
+    }
+
+    close(oldFD);
+    oldFD = open(oldFilePath, O_RDONLY);
+    
+    if(access(newFilePath, F_OK) != -1)
+    {
+        printf("Warning: File %s already exists, will be deleted and/or replaced\n", newFilePath);
+        remove(newFilePath);
+    }
+    
+    int compFD = open(newFilePath, O_RDWR | O_CREAT, 00600);
 
     char* str = (char*) malloc(sizeof(char));
 
@@ -199,6 +240,8 @@ void compressFile(int oldFD, int compFD, node* root)
         free(findStr);
     }
 
+    close(oldFD);
+    close(compFD);
     free(str);
 }
 
@@ -206,8 +249,23 @@ node* buildAVLFromFile(const char* path, node* root)
 {
     int fd = open(path, O_RDONLY);
     int status;
-
     char buffer = '.';
+
+    if(fd == -1)
+    {
+        printf("Error: File: %s does not exist\n", path);
+        return root;
+    }
+
+    if((status = read(fd, &buffer, 1)) == 0)
+    {
+        printf("Error: File: %s is empty\n", path);
+        return root;
+    }
+    
+    close(fd);
+    fd = open(path, O_RDONLY);
+
     char* str = (char*) malloc(sizeof(char));
     
     int index = 0;
@@ -285,6 +343,7 @@ node* buildAVLFromFile(const char* path, node* root)
 
     free(str);
 
+    close(fd);
     return root;
 }
 
@@ -314,13 +373,38 @@ void writeHuffmanCodebook(int fd, node* root)
     writeHuffman(fd, root);
 }
 
-node* buildAVLFromHuffman(int fd, node* root)
+node* buildAVLFromHuffman(char* path, node* root)
 {
+    int fd = open(path, O_RDONLY);
+    int status;
+
     char buffer = '\0';
     char* str = (char*) malloc(sizeof(char));
 
+    if(fd == -1)
+    {
+        printf("Fatal Error: Huffman Codebook: %s does not exist\n", path);
+        return root;
+    }
+
+    status = read(fd, &buffer, 1);
+
+    if(status == 0)
+    {
+        printf("Fatal Error: Codebook does not exist\n");
+        return root;
+    }
+
+    if(buffer != '/')
+    {
+        printf("Fatal Error: Invalid Huffman Codebook provided. Please build using accompaning funcion\n");
+        return root;
+    }
+
+    close(fd);
+    fd = open(path, O_RDONLY);
+
     int index = 0;
-    int status;
 
     read(fd, &buffer, 1);
     read(fd, &buffer, 1);
@@ -360,7 +444,7 @@ node* buildAVLFromHuffman(int fd, node* root)
     }
 
     free(str);
+    close(fd);
 
     return root;
 }
-

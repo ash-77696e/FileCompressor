@@ -3,16 +3,16 @@
 
 #include "structs.h"
 
-node* buildAVLFromFile(const char* path, node* root);
+node* buildAVLFromFile(char* path, node* root);
 
 void writeHuffmanCodebook(int fd, node* root);
 
-node* buildAVLFromHuffman(int fd, node* root);
+node* buildAVLFromHuffman(char* path, node* root);
 
-void compressFile(int oldFD, int compFD, node* root);
+void compressFile(char* oldFilePath, char* newFilePath, node* root);
 
-node* buildHuffmanFromFile(int fd, node* root);
+node* buildHuffmanFromFile(char* path, node* root);
 
-void decompressFile(int compFD, int newFD, node* root);
+void decompressFile(char* oldPath, char* newPath, node* root);
 
 #endif

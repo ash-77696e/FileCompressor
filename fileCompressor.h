@@ -14,10 +14,24 @@
 #include "IO.h"
 #include "huffman.h"
 
-int isDirectory(const char* path);
+int isDirectory(char* path);
 
-void printAllFiles(char* basePath);
+node* buildAVLRecursive(char* basePath, node* root);
 
-void buildAVLRecursive(char* basePath, node* root);
+char* getFileExtension(char* fileName);
+
+char* createHuffmanPath(char* path);
+
+void build(node* root, char* huffmanPath);
+
+void recursiveBuild(node* root, char* path);
+
+void compress(node* root, char* huffmanPath, char* oldFile);
+
+void recursiveCompress(char* basePath, char* huffmanPath, node* root);
+
+void decompress(node* root, char* codebookPath, char* oldFilePath);
+
+char* getCompressedFileName(char* path);
 
 #endif

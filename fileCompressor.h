@@ -32,6 +32,10 @@ void recursiveCompress(char* basePath, char* huffmanPath, node* root);
 
 void decompress(node* root, char* codebookPath, char* oldFilePath);
 
+void recursiveDecompress(node* root, char* codebookPath, char* dirPath);
+
 char* getCompressedFileName(char* path);
+
+char* getDecompFileName(char* path);
 
 #endif

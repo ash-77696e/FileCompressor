@@ -14,19 +14,27 @@
 void decompressFile(char* oldPath, char* newPath, node* root)
 {
     int compFD = open(oldPath, O_RDONLY);
+    char buffer = '\0';
+    int status;
+
     if(compFD == -1)
     {
         printf("Fatal Error: file %s does not exist\n", oldPath);
         return;
     }
+    if((status = read(compFD, &buffer, 1) == 0))
+    {
+        printf("Warning: file %s is empty\n", oldPath);
+        return;
+    }
+    close(compFD);
+    compFD = open(oldPath, O_RDONLY);
     if(access(newPath, F_OK) != -1)
     {
         printf("Warning: File %s already exists, will be deleted and/or replaced\n", newPath);
         remove(newPath);
     }
     int newFD = open(newPath, O_RDWR | O_CREAT, 00600);
-    char buffer = '\0';
-    int status;
 
     bool traversing = false;
     node* ptr;
@@ -88,6 +96,12 @@ void decompressFile(char* oldPath, char* newPath, node* root)
 node* buildHuffmanFromFile(char* path, node* root)
 {
     int fd = open(path, O_RDONLY);
+
+    if(fd == -1)
+    {
+        printf("Fatal Error: file %s does not exist\n");
+        return;
+    }
 
     char buffer = '\0';
     char* str = (char*) malloc(sizeof(char));

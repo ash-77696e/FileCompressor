@@ -2,61 +2,68 @@
 
 int main(int argc, char* argv[])
 {
-    //if build is selected
-    
-    /*node* root = NULL;
-    char* huffmanPath = createHuffmanPath(argv[2]);
-    root = buildAVLFromFile(argv[2], root);
-    build(root, huffmanPath);*/
-    
-
-    //if recursive build is selected
-    /*node* root = NULL;
-    recursiveBuild(root, "./test");*/
-
-    //if compress is selected
-    /*node* root = NULL;
-    compress(root, "./test/HuffmanCodebook", "./test/hi");*/
-
-    //if recursive compress is selected
-    /*node* root;
-    root = buildAVLFromHuffman("./test/HuffmanCodebook", root);
-    if(root == NULL)
+    if(strcmp(argv[1], "-b") == 0) // if build codebook is selected
     {
-        printf("Error: file can't be compressed\n");
-        return;
+        node* root = NULL;
+        char* huffmanPath = createHuffmanPath(argv[2]);
+        root = buildAVLFromFile(argv[2], root);
+        build(root, huffmanPath);
     }
-    recursiveCompress("./test", "./test/HuffmanCodebook", root);
-    freeTree(root);*/
 
-    //if decompress
-    /*node* root;
-    root = (node*) malloc(sizeof(node));
-    root->encoding = NULL;
-    root->token = NULL;
-    root = buildHuffmanFromFile("./test/HuffmanCodebook", root);
-    if(root == NULL)
+    if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-b") == 0 ) // if recursive build is selected
     {
-        printf("Error: file can't be decompressed\n");
-        return;
+        node* root = NULL;
+        recursiveBuild(root, argv[3]);
     }
-    decompress(root, "./test/HuffmanCodebook", "./test/niggatest/hello.pdf.hcz");
-    free(root);*/
-
-    //if recursive decompress
-    /*node* root;
-    root = (node*) malloc(sizeof(node));
-    root->encoding = NULL;
-    root->token = NULL;
-    root = buildHuffmanFromFile("./test/HuffmanCodebook", root);
-    if(root == NULL)
+    if(strcmp(argv[1], "-c") == 0) //if compress is selected
+    { 
+        node* root = NULL;
+        compress(root, argv[3], argv[2]);
+    }
+    if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-c") == 0 ) //if recursive compress is selected 
     {
-        printf("Error: file can't be decompressed\n");
-        return;
+        node* root;
+        root = buildAVLFromHuffman(argv[4], root);
+        if(root == NULL)
+        {
+            printf("Error: file can't be compressed\n");
+            return;
+        }
+        recursiveCompress(argv[3], argv[4], root);
+        freeTree(root);
     }
-    recursiveDecompress(root, "./test/HuffmanCodebook", "./test");
-    free(root);*/
 
+    if(strcmp(argv[1], "-d") == 0)//if decompress  
+    {
+        node* root;
+        root = (node*) malloc(sizeof(node));
+        root->encoding = NULL;
+        root->token = NULL;
+        root = buildHuffmanFromFile(argv[3], root);
+        if(root == NULL)
+        {
+            printf("Error: file can't be decompressed\n");
+            return;
+        }
+        decompress(root, argv[3], argv[2]);
+        free(root);
+    }
+
+    if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-d") == 0 ) //if recursive decompress  R d path codebook
+    {
+        node* root;
+        root = (node*) malloc(sizeof(node));
+        root->encoding = NULL;
+        root->token = NULL;
+        root = buildHuffmanFromFile(argv[4], root);
+        if(root == NULL)
+        {
+            printf("Error: file can't be decompressed\n");
+            return;
+        }
+        recursiveDecompress(root, argv[4], argv[3]);
+        free(root);
+    }
 
     return 0;
 }

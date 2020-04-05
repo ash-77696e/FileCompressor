@@ -2,67 +2,102 @@
 
 int main(int argc, char* argv[])
 {
-    if(strcmp(argv[1], "-b") == 0) // if build codebook is selected
+    if(argc < 3 || argc > 5)
     {
-        node* root = NULL;
-        char* huffmanPath = createHuffmanPath(argv[2]);
-        root = buildAVLFromFile(argv[2], root);
-        build(root, huffmanPath);
+        printf("Fatal Error: invalid number of arguments\n");
+        return 0;
     }
 
-    if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-b") == 0 ) // if recursive build is selected
+    if(argc == 3)
     {
-        node* root = NULL;
-        recursiveBuild(root, argv[3]);
-    }
-    if(strcmp(argv[1], "-c") == 0) //if compress is selected
-    { 
-        node* root = NULL;
-        compress(root, argv[3], argv[2]);
-    }
-    if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-c") == 0 ) //if recursive compress is selected 
-    {
-        node* root;
-        root = buildAVLFromHuffman(argv[4], root);
-        if(root == NULL)
+        if(strcmp(argv[1], "-b") == 0) // if build codebook is selected
         {
-            printf("Error: file can't be compressed\n");
-            return;
+            node* root = NULL;
+            char* huffmanPath = createHuffmanPath(argv[2]);
+            root = buildAVLFromFile(argv[2], root);
+            build(root, huffmanPath);
         }
-        recursiveCompress(argv[3], argv[4], root);
-        freeTree(root);
+        else
+        {
+            printf("Fatal Error: flags are not valid/incorrect order\n");
+            return 0;
+        }  
     }
 
-    if(strcmp(argv[1], "-d") == 0)//if decompress  
+    if(argc == 4)
     {
-        node* root;
-        root = (node*) malloc(sizeof(node));
-        root->encoding = NULL;
-        root->token = NULL;
-        root = buildHuffmanFromFile(argv[3], root);
-        if(root == NULL)
+        if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-b") == 0 ) // if recursive build is selected
         {
-            printf("Error: file can't be decompressed\n");
-            return;
+            node* root = NULL;
+            recursiveBuild(root, argv[3]);
         }
-        decompress(root, argv[3], argv[2]);
-        free(root);
+        
+        else if(strcmp(argv[1], "-c") == 0) //if compress is selected
+        { 
+            node* root = NULL;
+            compress(root, argv[3], argv[2]);
+        }
+
+        else if(strcmp(argv[1], "-d") == 0)//if decompress  
+        {
+            node* root;
+            root = (node*) malloc(sizeof(node));
+            root->encoding = NULL;
+            root->token = NULL;
+            root = buildHuffmanFromFile(argv[3], root);
+            if(root == NULL)
+            {
+                printf("Error: file can't be decompressed\n");
+                return 0;
+            }
+            decompress(root, argv[3], argv[2]);
+            free(root);
+        }
+
+        else
+        {
+            printf("Fatal Error: flags are not valid/incorrect order\n");
+            return 0;
+        }
+        
     }
 
-    if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-d") == 0 ) //if recursive decompress  R d path codebook
+    if(argc == 5)
     {
-        node* root;
-        root = (node*) malloc(sizeof(node));
-        root->encoding = NULL;
-        root->token = NULL;
-        root = buildHuffmanFromFile(argv[4], root);
-        if(root == NULL)
+        if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-c") == 0 ) //if recursive compress is selected 
         {
-            printf("Error: file can't be decompressed\n");
-            return;
+            node* root = NULL;
+            root = buildAVLFromHuffman(argv[4], root);
+            if(root == NULL)
+            {
+                printf("Error: file can't be compressed\n");
+                return 0;
+            }
+            recursiveCompress(argv[3], argv[4], root);
+            freeTree(root);
         }
-        recursiveDecompress(root, argv[4], argv[3]);
-        free(root);
+
+        else if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-d") == 0 ) //if recursive decompress  R d path codebook
+        {
+            node* root;
+            root = (node*) malloc(sizeof(node));
+            root->encoding = NULL;
+            root->token = NULL;
+            root = buildHuffmanFromFile(argv[4], root);
+            if(root == NULL)
+            {
+                printf("Error: file can't be decompressed\n");
+                return 0;
+            }
+            recursiveDecompress(root, argv[4], argv[3]);
+            free(root);
+        }
+        else
+        {
+            printf("Fatal Error: flags are not valid/incorrect order\n");
+            return 0;            
+        }
+        
     }
 
     return 0;
@@ -193,7 +228,8 @@ void recursiveCompress(char* basePath, char* huffmanPath, node* root)
     while((entry = readdir(dir)) != NULL)
     {
         strcpy(path, basePath);
-        strcat(path, "/");
+        if(path[strlen(path)-1] != '/')
+            strcat(path, "/");
         strcat(path, entry->d_name);
 
         if(isDirectory(path))
@@ -262,7 +298,8 @@ node* buildAVLRecursive(char* basePath, node* root)
     while((entry = readdir(dir)) != NULL)
     { // still an entry to be read from the directory
         strcpy(path, basePath);
-        strcat(path, "/");
+        if(path[strlen(path)-1] != '/')
+            strcat(path, "/");
         strcat(path, entry->d_name);
 
         if(isDirectory(path))

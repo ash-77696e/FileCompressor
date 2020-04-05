@@ -45,7 +45,6 @@ node* buildHuffmanFromEncoding(node* root, node* strNode)
 
     ptr->encoding = strNode->encoding;
     ptr->token = strNode->token;
-    //free(strNode);
     return root;
 }
 

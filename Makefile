@@ -1,5 +1,5 @@
 all: fileCompressor.c AVL.o minheap.o IO.o huffman.o
-	gcc -g -o fileCompressor fileCompressor.c AVL.o minheap.o IO.o huffman.o
+	gcc -o fileCompressor fileCompressor.c AVL.o minheap.o IO.o huffman.o
 
 AVL.o: AVL.c
 	gcc -c AVL.c

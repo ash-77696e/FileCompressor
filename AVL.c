@@ -14,8 +14,6 @@ node* add(node* root, node* strNode){
     }
 
     else if(strcmp(root->token, strNode->token) == 0){ // already exists in the tree so increment frequency
-        //free(strNode->token); for some reason, these 2 lines cause a segfault sometimes
-        //free(strNode);
         root->freq++;
         return root; // to traverse back up the tree recursively to the original root and exit the function
     }

@@ -12,10 +12,10 @@ int main(int argc, char* argv[])
     {
         if(strcmp(argv[1], "-b") == 0) // if build codebook is selected
         {
-            node* root = NULL;
-            char* huffmanPath = createHuffmanPath(argv[2]);
-            root = buildAVLFromFile(argv[2], root);
-            build(root, huffmanPath);
+            node* root = NULL; //create root
+            char* huffmanPath = createHuffmanPath(argv[2]); //create huffman codebook path
+            root = buildAVLFromFile(argv[2], root); //build AVL tree of nodes with tokens
+            build(root, huffmanPath); //build huffman codebook
         }
         else
         {
@@ -40,11 +40,11 @@ int main(int argc, char* argv[])
 
         else if(strcmp(argv[1], "-d") == 0)//if decompress  
         {
-            node* root;
+            node* root = NULL;
             root = (node*) malloc(sizeof(node));
             root->encoding = NULL;
             root->token = NULL;
-            root = buildHuffmanFromFile(argv[3], root);
+            root = buildHuffmanFromFile(argv[3], root); //create huffman tree of nodes
             if(root == NULL)
             {
                 printf("Error: file can't be decompressed\n");
@@ -79,11 +79,11 @@ int main(int argc, char* argv[])
 
         else if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-d") == 0 ) //if recursive decompress  R d path codebook
         {
-            node* root;
+            node* root = NULL;
             root = (node*) malloc(sizeof(node));
             root->encoding = NULL;
             root->token = NULL;
-            root = buildHuffmanFromFile(argv[4], root);
+            root = buildHuffmanFromFile(argv[4], root); //create huffman tree of nodes
             if(root == NULL)
             {
                 printf("Error: file can't be decompressed\n");
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
  * */
 void recursiveDecompress(node* root, char* codebookPath, char* dirPath)
 {
-    DIR* dir = opendir(dirPath);
+    DIR* dir = opendir(dirPath); //open directory
 
     if(dir == NULL)
     {
@@ -116,17 +116,18 @@ void recursiveDecompress(node* root, char* codebookPath, char* dirPath)
         return;
     }
 
-    readdir(dir);
+    readdir(dir); //skip first two (becuase of . and ..)
     readdir(dir);
 
-    char path[10000];
-    memset(path, '\0', 10000);
+    char path[20000];
+    memset(path, '\0', 20000);
     struct dirent* entry;
 
     while((entry = readdir(dir)) != NULL)
     {
         strcpy(path, dirPath);
-        strcat(path, "/");
+        if(path[strlen(path)-1] != '/') //concatinate a / to create path for file/directory
+            strcat(path, "/");
         strcat(path, entry->d_name);
 
         if(isDirectory(path))
@@ -147,7 +148,12 @@ void recursiveDecompress(node* root, char* codebookPath, char* dirPath)
  * */
 void decompress(node* root, char* codebookPath, char* oldFilePath)
 {
-    char* newFilePath = getDecompFileName(oldFilePath);
+    if(strcmp("hcz", getFileExtension(oldFilePath)) != 0) //check if file is a compressed file
+    {
+        printf("Error: can only decompress hcz files\n");
+        return;
+    }
+    char* newFilePath = getDecompFileName(oldFilePath); //create new file path
     decompressFile(oldFilePath, newFilePath, root);
     free(newFilePath);
 }
@@ -167,8 +173,8 @@ void recursiveBuild(node* root, char* path)
         printf("Warning: Codebook already exists in directory, will be deleted and/or replaced\n");
         remove(huffmanPath);
     }
-    root = buildAVLRecursive(path, root);
-    build(root, huffmanPath);
+    root = buildAVLRecursive(path, root); //create tree after walking through every file in directory
+    build(root, huffmanPath); 
 }
 
 /**
@@ -250,6 +256,11 @@ void recursiveCompress(char* basePath, char* huffmanPath, node* root)
  * */
 void compress(node* root, char* huffmanPath, char* oldFile)
 {
+    if(strcmp("hcz", getFileExtension(oldFile)) == 0)
+    {
+        printf("Error: cannot compress an hcz file\n");
+        return;
+    }
     root = buildAVLFromHuffman(huffmanPath, root);
     if(root == NULL)
     {
@@ -356,6 +367,10 @@ char* getCompressedFileName(char* path)
     return compFileName;
 }
 
+/**
+ * Get file name without .hcz
+ * Example: file.txt.hcz -> file.txt
+ * */
 char* getDecompFileName(char* path)
 {
     int index = strlen(path)-1;

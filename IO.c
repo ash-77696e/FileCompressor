@@ -11,6 +11,24 @@
 #include "huffman.h"
 #include "AVL.h"
 
+/**
+ * Non blocking write function
+ * */
+void non_blocking_write(char* buffer, int size, int fd)
+{
+    int status = 1;
+    int bytesWrote = 0;
+
+    do
+    {
+        status = write(fd, buffer+bytesWrote, size-bytesWrote);
+        bytesWrote += status;
+    } while (status > 0 && bytesWrote < size);
+}
+
+/**
+ * Traverse through compressed file, and write to decompressed file the decoded token
+ * */
 void decompressFile(char* oldPath, char* newPath, node* root)
 {
     int compFD = open(oldPath, O_RDONLY);
@@ -31,7 +49,7 @@ void decompressFile(char* oldPath, char* newPath, node* root)
     compFD = open(oldPath, O_RDONLY);
     if(access(newPath, F_OK) != -1)
     {
-        printf("Warning: File %s already exists, will be deleted and/or replaced\n", newPath);
+        printf("Warning: File %s already exists, will be deleted and/or replaced\n", newPath); //errors
         remove(newPath);
     }
     int newFD = open(newPath, O_RDWR | O_CREAT, 00600);
@@ -51,18 +69,18 @@ void decompressFile(char* oldPath, char* newPath, node* root)
 
         if(traversing)
         {
-            if(val == 0 && ptr->left != NULL)
+            if(val == 0 && ptr->left != NULL) //keep going left or right depending on value read
                 ptr = ptr->left;
             if(val == 1 && ptr->right != NULL)
                 ptr = ptr->right;
             
-            if(ptr->left == NULL && ptr->right == NULL)
+            if(ptr->left == NULL && ptr->right == NULL) //if leaf node is reached then we can get the token
             {
                 if(ptr->token[0] == '/')
                 {
                     if(ptr->token[1] != '/')
                     {
-                        char ascii[2];
+                        char ascii[2]; //escape character conversion
                         int asciiVal = 0;
                         memcpy(ascii, &(ptr->token[1]), 2);
                         if(ascii[0] == '0')
@@ -71,7 +89,7 @@ void decompressFile(char* oldPath, char* newPath, node* root)
                             asciiVal = atoi(ascii);
 
                         char c = asciiVal;
-                        write(newFD, &c, 1);
+                        write(newFD, &c, 1); //write
                         traversing = false;
                     }
                     else
@@ -93,14 +111,17 @@ void decompressFile(char* oldPath, char* newPath, node* root)
     close(compFD);
 }
 
+/**
+ * Create Huffman Tree from Huffman Codebook
+ * */
 node* buildHuffmanFromFile(char* path, node* root)
 {
     int fd = open(path, O_RDONLY);
 
     if(fd == -1)
     {
-        printf("Fatal Error: file %s does not exist\n");
-        return;
+        printf("Fatal Error: file %s does not exist\n", path);
+        return NULL;
     }
 
     char buffer = '\0';
@@ -109,16 +130,16 @@ node* buildHuffmanFromFile(char* path, node* root)
     int index = 0;
     int status;
 
-    read(fd, &buffer, 1);
-    read(fd, &buffer, 1);
+    read(fd, &buffer, 1); //read escape char
+    read(fd, &buffer, 1); //read new line
     node* insert;
     str[index] = '\0';
 
     while((status = read(fd, &buffer, 1)) > 0)
     {
-        if(buffer == '\t')
+        if(buffer == '\t') //read tab
         {
-            char* nodeStr = (char*) malloc(sizeof(char) * (strlen(str) + 1));
+            char* nodeStr = (char*) malloc(sizeof(char) * (strlen(str) + 1)); //create endcoding token
             strcpy(nodeStr, str);
             insert = (node*) malloc(sizeof(node));
             insert->encoding = nodeStr;
@@ -128,12 +149,12 @@ node* buildHuffmanFromFile(char* path, node* root)
             continue;
         }
 
-        if(buffer == '\n')
+        if(buffer == '\n') //read new line
         {
-            char* nodeStr = (char*) malloc(sizeof(char) * (strlen(str) + 1));
+            char* nodeStr = (char*) malloc(sizeof(char) * (strlen(str) + 1)); //create string token
             strcpy(nodeStr, str);
             insert->token = nodeStr;
-            root = buildHuffmanFromEncoding(root, insert);
+            root = buildHuffmanFromEncoding(root, insert); //insert token into huffman tree
             free(str);
             str = (char*) malloc(sizeof(char));
             index = 0;
@@ -151,6 +172,9 @@ node* buildHuffmanFromFile(char* path, node* root)
     return root;
 }
 
+/**
+ * Write compressed file
+ * */
 void compressFile(char* oldFilePath, char* newFilePath, node* root)
 {
     int oldFD = open(oldFilePath, O_RDONLY);
@@ -186,14 +210,14 @@ void compressFile(char* oldFilePath, char* newFilePath, node* root)
     int index = 0;
     str[0] = '\0';
 
-    while((status = read(oldFD, &buffer, 1)) > 0)
+    while((status = read(oldFD, &buffer, 1)) > 0) //read through non compressed file
     {
-        if(iscntrl(buffer) || buffer == ' ')
+        if(iscntrl(buffer) || buffer == ' ') //if control character or space
         {
             if(strlen(str) > 0)
             {
                 char* findStr;
-                if(str[0] == '/')
+                if(str[0] == '/') //if token starts with /, prepend another /
                 {
                     findStr = (char*) malloc(sizeof(char) * (strlen(str) + 2));
                     findStr[0] = '/';
@@ -205,12 +229,12 @@ void compressFile(char* oldFilePath, char* newFilePath, node* root)
                     strcpy(findStr, str);
                 }
                 
-                node* found = AVLSearch(root, findStr);
+                node* found = AVLSearch(root, findStr); //find token and encoding in AVL tree
                 write(compFD, found->encoding, strlen(found->encoding));
                 free(findStr);
             }
 
-            char* findStr = (char*) malloc(sizeof(char) * 4);
+            char* findStr = (char*) malloc(sizeof(char) * 4); //convert control char to ascii value
             findStr[0] = '/';
             findStr[3] = '\0';
             int asciiValue = (int) buffer;
@@ -259,6 +283,9 @@ void compressFile(char* oldFilePath, char* newFilePath, node* root)
     free(str);
 }
 
+/**
+ * Construct AVL from file
+ * */
 node* buildAVLFromFile(const char* path, node* root)
 {
     int fd = open(path, O_RDONLY);
@@ -287,14 +314,14 @@ node* buildAVLFromFile(const char* path, node* root)
 
     while((status = read(fd, &buffer, 1)) > 0)
     {
-        if(iscntrl(buffer) || buffer == ' ')
+        if(iscntrl(buffer) || buffer == ' ') //if control char is read (delimeter)
         {
             
             if(strlen(str) > 0)
             {
                 node* insert = (node*) malloc(sizeof(node));
                 char* nodeStr;
-                if(str[0] == '/')
+                if(str[0] == '/') //prepend additional /
                 {
                     nodeStr = (char*) malloc(sizeof(char) * strlen(str) + 2);
                     nodeStr[0] = '/';
@@ -310,7 +337,7 @@ node* buildAVLFromFile(const char* path, node* root)
                 root = add(root, insert); 
             }
 
-            node* insert = (node*) malloc(sizeof(node));
+            node* insert = (node*) malloc(sizeof(node)); //convert control char and insert
             char* nodeStr = (char*) (malloc(sizeof(char) * 4));
             nodeStr[0] = '/';
             nodeStr[3] = '\0';
@@ -361,22 +388,23 @@ node* buildAVLFromFile(const char* path, node* root)
     return root;
 }
 
+/**
+ * Write Huffman Codebook
+ * */
 void writeHuffman(int fd, node* root)
 {
     if(root == NULL)
         return;
-    char* tab = "\t";
-    char* newLine = "\n";
 
     if(root->encoding != NULL)
     {
-        write(fd, root->encoding, strlen(root->encoding));
-        write(fd, tab, 1);
-        write(fd, root->token, strlen(root->token));
-        write(fd, newLine, 1);
+        write(fd, root->encoding, strlen(root->encoding)); //write encoding
+        write(fd, "\t", 1);
+        write(fd, root->token, strlen(root->token)); ///write token
+        write(fd, "\n", 1);
     }
 
-    writeHuffman(fd, root->left);
+    writeHuffman(fd, root->left); //pre order traversal
     writeHuffman(fd, root->right);
 }
 
@@ -387,6 +415,9 @@ void writeHuffmanCodebook(int fd, node* root)
     writeHuffman(fd, root);
 }
 
+/**
+ * Create AVL from Huffman Codebook
+ * */
 node* buildAVLFromHuffman(char* path, node* root)
 {
     int fd = open(path, O_RDONLY);

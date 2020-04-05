@@ -15,4 +15,6 @@ node* buildHuffmanFromFile(char* path, node* root);
 
 void decompressFile(char* oldPath, char* newPath, node* root);
 
+void non_blocking_write(char* buffer, int size, int fd);
+
 #endif

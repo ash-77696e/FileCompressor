@@ -4,6 +4,10 @@
 #include <string.h>
 #include "AVL.h"
 
+/**
+ * Add node to AVL Tree
+ * If duplicate exists, add one to frequency of node
+ * */
 node* add(node* root, node* strNode){
     if(root == NULL){ // tree is empty
         strNode->freq = 1;
@@ -67,7 +71,9 @@ node* add(node* root, node* strNode){
     return root; // to traverse back up the tree recursively to the original root and exit the function
 }
 
-
+/**
+ * Get height of node
+ * */
 int height(node* root){ // allows checking height of empty nodes as well
     if(root == NULL){
         return -1; // height of empty node is -1
@@ -97,6 +103,9 @@ void freeTree(node* root)
     free(root);
 }
 
+/**
+ * Get size of tree
+ * */
 int getSize(node* root)
 {
     if(root == NULL)

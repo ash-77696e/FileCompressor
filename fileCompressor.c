@@ -181,7 +181,6 @@ void build(node* root, char* huffmanPath)
     if(heapSize == 0)
     {
         printf("Fatal Error: no valid directory/file(s) to build from\n");
-        free(huffmanPath);
         return;
     }
     if(access(huffmanPath, F_OK) != -1)

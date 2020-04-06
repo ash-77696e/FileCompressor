@@ -144,3 +144,5 @@ the user would be informed that the amount of flags is incorrect.
 We also tried test cases where the first flag is not either 
 “-R”, “-b”, “-c”, or “-d” to ensure that the user is informed that they 
 are trying to use an invalid flag or that the flags are out of order.
+
+Thanks for grading!

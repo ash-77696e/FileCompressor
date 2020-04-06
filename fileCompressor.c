@@ -399,7 +399,9 @@ char* getDecompFileName(char* path)
 char* prePendDotSlash(char* arg)
 {
     char* newArg;
-    if(strlen(arg) >= 2)
+    if(arg[0] == '/') //absolute path
+        return arg;
+    if(strlen(arg) >= 2) //relative path
     {
         if(arg[0] != '.' || arg[1] != '/')
         {

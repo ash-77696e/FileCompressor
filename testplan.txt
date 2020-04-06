@@ -1,0 +1,146 @@
+Ashwin Haridas, ah1058 (Section 06)
+Ritin Nair, rrn32 (Section 04)
+
+Assignment 1 Test Plan
+
+Testing Procedure:
+For each file or directory we tested we used a similar procedure 
+to ensure that the resulting output matched with the expected output. 
+First we ran the program with the build flag, or “-b” to make a huffman codebook based on the given file. 
+We then verified that this output was correct by using the “diff” command in the terminal 
+to compare the codebook and file containing the expected output from running the program with the build flag. 
+If the “diff” command resulted in an output of 0, then this confirmed the codebook was correct. 
+Next, we ran the program with the compress flag using the codebook from the previous 
+test where we used the buildflag. 
+Similarly to how we used the “diff” command to check for if the codebook was correct, we 
+also used it to check if the contents of the 
+compressed file from the output were correct by comparing it with a file containing the expected output. 
+Finally, we ran the program with the decompress file with the original 
+huffman codebook and the compressed file from the previous test being passed as arguments. 
+Similar to the previous examples, we also used the “diff” command to see if the decompressed file matched with the original file before it was compressed. 
+This procedure of building, compressing, decompressing, and checking if the expected output matched the output from running the program at each step was performed for the majority of the test cases we tried.
+
+Basic Test Cases:
+
+Small Files:
+We tested files that were only a few lines long to see if the program was able to build a codebook, 
+use the codebook to compress a file, and decompress the compressed file using the codebook.
+
+An example of a small file we tested 
+would be a file consisting of a paragraph from the first page of a novel. 
+This case was not too difficult to pass as it did not contain any tokens which would 
+result in an edge case that our program would have to use extra means to account for. 
+The tokens were all spaces, newlines, tabs, punctuation, and regular words. 
+
+These test cases on small files were important to try because 
+they guaranteed our program would work on the basic level without
+having to account for any edge cases or having to worry about time or space efficiency.
+
+Large Files:
+
+We tested larger files too that were significantly longer to see if 
+the program could handle these without timing out or causing any memory errors.
+
+An example of a larger file we tested was a file that had an entire movie script in it. 
+It was much longer than any of the small files we tried to test and would have noticeable 
+differences in the time it took to complete the building, compressing, and decompressing operations 
+if we did not implement these efficiently. 
+However, our use of AVL’s to read in tokens and a proper implementation of 
+huffman encoding resulted in these cases not taking too long to run and being completed within a few seconds.
+
+These test cases were important to account for whether our program was time and space efficient. 
+The results of these tests showed that our program could handle running 
+the intended operations quickly without 
+running out of memory regardless of how large the files we tested were.
+
+Advanced Test Cases:
+
+Recursive Tests:
+
+We tested if the program worked when including the recursive flag 
+before the build, compress, or decompress flags.
+
+Examples of these cases would be running the program with 
+./fileCompressor<-R><flag name><path name>|codebook| in the command line, with 
+the codebook being included when compressing and decompressing. 
+The pathname was the directory or file to perform the operation on, 
+and if pathname was a directory then the program would recursively descend through the directory 
+and all its subdirectories to apply the intended operation to all valid files contained in these directories.
+Performing recursive build made a single codebook based on all the files within a directory 
+and all its subdirectories, performing recursive compress went through the directory recursively and 
+made a compressed file corresponding to all the files able to be compressed, 
+and performing recursive decompress went through the directory recursively and 
+decompressed all files with the “.hcz” extension.
+
+We tried performing recursive tests on single files, directories with only files, 
+directories with subdirectories and files, 
+and directories with multiple nested subdirectories that had other subdirectories and files within them. 
+
+These tests were important to guarantee that the recursive operations 
+in this program all properly went through the files and subdirectories 
+within a directory and performed the intended operation using these files. 
+
+Control and escape characters:
+
+We tested if the program could account for tokens 
+with escape characters and having control characters in the codebook.
+
+An example of a file we tested to see if the program handled tokens with the escape character 
+in it properly was one that included “/09” and “/32” in it. 
+These are both the ways tab(\t) and space(\s) get represented in the codebook respectively. 
+To account for not having conflicting tokens in the codebook we stored tokens starting 
+with the escape character as “/” + <token name> instead. 
+For example, “/09” became “//09” to differentiate it from the token “/09” which 
+represents tabs in the codebook.
+
+We tested if building, compressing, and decompressing all worked on files 
+like these to test for if tokens starting with the escape character could be accounted for.
+
+Error Test Cases:
+
+Warning: Empty file:
+We tested build, compress, and decompress with empty files provided in 
+the command line to see if the program would output a warning to the user informing 
+them that the file they gave is empty. 
+This is a warning because the program will still run, but the operations won’t do anything meaningful.
+
+Warning: File already exists:
+We tested if running the program with a huffman codebook already 
+in the directory would inform the user that the file they are trying to make already exists. 
+This was also done for compression with if the “.hcz” file already exists.
+
+Warning: Empty Directory:
+Similar to an empty file, we ran test cases with the recursive operations and 
+empty directories passed in as command line arguments. 
+These ensured that the user would be warned that the directory 
+they were trying to use for recursive build, recursive compress, or recursive decompress was empty.
+
+Error: A certain file cannot be decompressed:
+We ran a test case where we tried to decompress a file without a “.hcz” 
+extension to guarantee that an error is printed indicating that the 
+file given to the program by the user can not be decompressed.
+
+Error: No valid files in directory:
+An example of an input we tried that resulted in this error being the output 
+was trying to recursively decompress a directory without any compressed “.hcz” files.
+This test is important because it prints an error showing the user that decompressing 
+any compressed files in a directory is not possible because there are no compressed files in it.
+
+Error: mallocing errors:
+Running out of memory to the point where malloc returns NULL would print 
+an error telling the user that there is no more space left to allocate new memory.
+
+Fatal Error: File does not exist:
+We tried test cases for build, compress, and decompress where 
+the file we passed in the command line did not exist. 
+This guarantees that the user would be informed that the 
+file they were trying to perform an operation on does not exist.
+
+Fatal Error: Flag errors:
+We tried test cases with less than three 
+flags and more than five flags to test if 
+the user would be informed that the amount of flags is incorrect.
+
+We also tried test cases where the first flag is not either 
+“-R”, “-b”, “-c”, or “-d” to ensure that the user is informed that they 
+are trying to use an invalid flag or that the flags are out of order.

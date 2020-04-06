@@ -38,4 +38,6 @@ char* getCompressedFileName(char* path);
 
 char* getDecompFileName(char* path);
 
+char* prePendDotSlash(char* arg);
+
 #endif

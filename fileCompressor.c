@@ -12,9 +12,9 @@ int main(int argc, char* argv[])
     {
         if(strcmp(argv[1], "-b") == 0) // if build codebook is selected
         {
-            node* root = NULL; //create root
-            char* huffmanPath = createHuffmanPath(argv[2]); //create huffman codebook path
-            root = buildAVLFromFile(argv[2], root); //build AVL tree of nodes with tokens
+            node* root = NULL; //create root 
+            char* huffmanPath = createHuffmanPath(prePendDotSlash(argv[2])); //create huffman codebook path
+            root = buildAVLFromFile(prePendDotSlash(argv[2]), root); //build AVL tree of nodes with tokens
             build(root, huffmanPath); //build huffman codebook
         }
         else
@@ -29,13 +29,13 @@ int main(int argc, char* argv[])
         if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-b") == 0 ) // if recursive build is selected
         {
             node* root = NULL;
-            recursiveBuild(root, argv[3]);
+            recursiveBuild(root, prePendDotSlash(argv[3]));
         }
         
         else if(strcmp(argv[1], "-c") == 0) //if compress is selected
         { 
             node* root = NULL;
-            compress(root, argv[3], argv[2]);
+            compress(root, prePendDotSlash(argv[3]), prePendDotSlash(argv[2]));
         }
 
         else if(strcmp(argv[1], "-d") == 0)//if decompress  
@@ -44,13 +44,13 @@ int main(int argc, char* argv[])
             root = (node*) malloc(sizeof(node));
             root->encoding = NULL;
             root->token = NULL;
-            root = buildHuffmanFromFile(argv[3], root); //create huffman tree of nodes
+            root = buildHuffmanFromFile(prePendDotSlash(argv[3]), root); //create huffman tree of nodes
             if(root == NULL)
             {
                 printf("Error: file can't be decompressed\n");
                 return 0;
             }
-            decompress(root, argv[3], argv[2]);
+            decompress(root, prePendDotSlash(argv[3]), prePendDotSlash(argv[2]));
             free(root);
         }
 
@@ -67,13 +67,13 @@ int main(int argc, char* argv[])
         if(strcmp(argv[1], "-R") == 0 && strcmp(argv[2], "-c") == 0 ) //if recursive compress is selected 
         {
             node* root = NULL;
-            root = buildAVLFromHuffman(argv[4], root);
+            root = buildAVLFromHuffman(prePendDotSlash(argv[4]), root);
             if(root == NULL)
             {
                 printf("Error: file can't be compressed\n");
                 return 0;
             }
-            recursiveCompress(argv[3], argv[4], root);
+            recursiveCompress(prePendDotSlash(argv[3]), prePendDotSlash(argv[4]), root);
             freeTree(root);
         }
 
@@ -83,13 +83,13 @@ int main(int argc, char* argv[])
             root = (node*) malloc(sizeof(node));
             root->encoding = NULL;
             root->token = NULL;
-            root = buildHuffmanFromFile(argv[4], root); //create huffman tree of nodes
+            root = buildHuffmanFromFile(prePendDotSlash(argv[4]), root); //create huffman tree of nodes
             if(root == NULL)
             {
                 printf("Error: file can't be decompressed\n");
                 return 0;
             }
-            recursiveDecompress(root, argv[4], argv[3]);
+            recursiveDecompress(root, prePendDotSlash(argv[4]), prePendDotSlash(argv[3]));
             free(root);
         }
         else
@@ -227,8 +227,8 @@ void recursiveCompress(char* basePath, char* huffmanPath, node* root)
     readdir(dir);
     readdir(dir);
 
-    char path[10000];
-    memset(path, '\0', 10000);
+    char path[20000];
+    memset(path, '\0', 20000);
     struct dirent* entry;
 
     while((entry = readdir(dir)) != NULL)
@@ -390,4 +390,38 @@ char* getDecompFileName(char* path)
     memset(decompFile, '\0', index+1);
     memcpy(decompFile, path, index);
     return decompFile;
+}
+
+/**
+ * Added so if any path arguments do not have './', it is prepended to it
+ * This is in case of error in user input
+ * */
+char* prePendDotSlash(char* arg)
+{
+    char* newArg;
+    if(strlen(arg) >= 2)
+    {
+        if(arg[0] != '.' || arg[1] != '/')
+        {
+            newArg = (char*) malloc(sizeof(char) * strlen(arg) + 3);
+            memset(newArg, '\0', strlen(arg) + 3);
+            newArg[0] = '.';
+            newArg[1] = '/';
+            strcpy(&newArg[2], arg);
+            return newArg;
+        }
+        else
+        {
+            return arg;
+        }
+    }
+    else
+    {
+        newArg = (char*) malloc(sizeof(char) * strlen(arg) + 3);
+        memset(newArg, '\0', strlen(arg) + 3);
+        newArg[0] = '.';
+        newArg[1] = '/';
+        strcpy(&newArg[2], arg);
+        return newArg;        
+    }    
 }

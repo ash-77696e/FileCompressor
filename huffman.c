@@ -23,6 +23,8 @@ node* buildHuffmanFromEncoding(node* root, node* strNode)
                 ptr->left = (node*) malloc(sizeof(node));
                 ptr->left->encoding = NULL;
                 ptr->left->token = NULL;
+                ptr->left->right = NULL;
+                ptr->left->left = NULL;
             } 
 
             ptr = ptr->left;
@@ -35,6 +37,8 @@ node* buildHuffmanFromEncoding(node* root, node* strNode)
                 ptr->right = (node*) malloc(sizeof(node));
                 ptr->right->encoding = NULL;
                 ptr->right->token = NULL;
+                ptr->right->left = NULL;
+                ptr->right->right = NULL;
             }
 
             ptr = ptr->right;

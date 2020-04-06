@@ -44,6 +44,8 @@ int main(int argc, char* argv[])
             root = (node*) malloc(sizeof(node));
             root->encoding = NULL;
             root->token = NULL;
+            root->left = NULL;
+            root->right = NULL;
             root = buildHuffmanFromFile(prePendDotSlash(argv[3]), root); //create huffman tree of nodes
             if(root == NULL)
             {
@@ -83,6 +85,8 @@ int main(int argc, char* argv[])
             root = (node*) malloc(sizeof(node));
             root->encoding = NULL;
             root->token = NULL;
+            root->left = NULL;
+            root->right = NULL;
             root = buildHuffmanFromFile(prePendDotSlash(argv[4]), root); //create huffman tree of nodes
             if(root == NULL)
             {
@@ -398,9 +402,9 @@ char* getDecompFileName(char* path)
  * */
 char* prePendDotSlash(char* arg)
 {
-    char* newArg;
-    if(arg[0] == '/') //absolute path
+    if(arg[0] == '/')
         return arg;
+    char* newArg;
     if(strlen(arg) >= 2) //relative path
     {
         if(arg[0] != '.' || arg[1] != '/')

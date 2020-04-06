@@ -20,8 +20,6 @@ node* buildAVLRecursive(char* basePath, node* root);
 
 char* getFileExtension(char* fileName);
 
-char* createHuffmanPath(char* path);
-
 void build(node* root, char* huffmanPath);
 
 void recursiveBuild(node* root, char* path);

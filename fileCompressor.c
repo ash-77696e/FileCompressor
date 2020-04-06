@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
         if(strcmp(argv[1], "-b") == 0) // if build codebook is selected
         {
             node* root = NULL; //create root 
-            char* huffmanPath = createHuffmanPath(prePendDotSlash(argv[2])); //create huffman codebook path
+            char* huffmanPath = "./HuffmanCodebook"; //create huffman codebook path
             root = buildAVLFromFile(prePendDotSlash(argv[2]), root); //build AVL tree of nodes with tokens
             build(root, huffmanPath); //build huffman codebook
         }
@@ -167,16 +167,7 @@ void decompress(node* root, char* codebookPath, char* oldFilePath)
  * */
 void recursiveBuild(node* root, char* path)
 {
-    char* huffmanPath = (char*) malloc(sizeof(char) * (strlen(path) + 2));
-    memset(huffmanPath, '\0', strlen(path)+2);
-    strcpy(huffmanPath, path);
-    strcat(huffmanPath, "/");
-    huffmanPath = createHuffmanPath(huffmanPath);
-    if(access(huffmanPath, F_OK) != -1)
-    {
-        printf("Warning: Codebook already exists in directory, will be deleted and/or replaced\n");
-        remove(huffmanPath);
-    }
+    char* huffmanPath = "./HuffmanCodebook";
     root = buildAVLRecursive(path, root); //create tree after walking through every file in directory
     build(root, huffmanPath); 
 }
@@ -212,7 +203,6 @@ void build(node* root, char* huffmanPath)
     freeHuffman(heap[0]);
     free(heap);
     free(huffmanCodeArr);
-    free(huffmanPath);
 }
 
 /**
@@ -337,33 +327,6 @@ char* getFileExtension(char* fileName)
     if(ext == NULL)
         return "";
     return ext+1;
-}
-
-/**
- * Create Huffman path
- * Adds HuffmanCodebook to end of path
- * */
-char* createHuffmanPath(char* path)
-{
-    char* test = strchr(path, '/');
-    if(test == NULL)
-    {
-        char* huffmanPath = (char*) malloc(sizeof(char) * 14);
-        memset(huffmanPath, '\0', 14);
-        strcpy(huffmanPath, "HuffmanCodebook");
-        return huffmanPath;
-    }
-    int index = strlen(path);
-    while(index != 0 && path[index] != '/')
-    {
-        index--;
-    }
-    char* huffmanPath = (char*) malloc(sizeof(char) * (index+17));
-    memset(huffmanPath, '\0', index+12);
-    memcpy(huffmanPath, path, index+1);
-    strcat(huffmanPath, "HuffmanCodebook");
-
-    return huffmanPath;
 }
 
 /**

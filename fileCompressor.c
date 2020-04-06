@@ -341,6 +341,14 @@ char* getFileExtension(char* fileName)
  * */
 char* createHuffmanPath(char* path)
 {
+    char* test = strchr(path, '/');
+    if(test == NULL)
+    {
+        char* huffmanPath = (char*) malloc(sizeof(char) * 14);
+        memset(huffmanPath, '\0', 14);
+        strcpy(huffmanPath, "HuffmanCodebook");
+        return huffmanPath;
+    }
     int index = strlen(path);
     while(index != 0 && path[index] != '/')
     {
